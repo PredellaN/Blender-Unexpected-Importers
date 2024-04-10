@@ -1,1 +1,3 @@
 dependencies
+.venv
+__pycache__
