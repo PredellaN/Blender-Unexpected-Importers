@@ -20,7 +20,21 @@ class ImportE57(Operator, ImportHelper):
     def execute(self, context):
         e57_reader = E57Reader(self.filepath)
         e57_reader.read_scans()
-        
+
+        for scan_data in e57_reader.scans:
+            # Create a new mesh object
+            mesh = bpy.data.meshes.new(name="Scan Mesh")
+            mesh_obj = bpy.data.objects.new("Scan Object", mesh)
+            context.collection.objects.link(mesh_obj)
+            context.view_layer.objects.active = mesh_obj
+
+            # Add vertices to the mesh
+            vertices = scan_data['points_global']
+            mesh.from_pydata(vertices, [], [])
+
+            # Update mesh geometry
+            mesh.update()
+
         return {'FINISHED'}
 
 def menu_func_import(self, context):

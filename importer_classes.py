@@ -30,7 +30,7 @@ class E57Reader:
 
                 if 'colorRed' in data:
                     self.has_colors = True
-                    scan_data['points_global'] = np.column_stack([
+                    scan_data['points_colors'] = np.column_stack([
                         data['colorRed'],
                         data['colorGreen'],
                         data['colorBlue'],
