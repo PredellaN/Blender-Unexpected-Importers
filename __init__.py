@@ -73,7 +73,7 @@ def are_dependencies_installed(dependencies, dependencies_dir):
 
 ## REGISTERING
 def register():
-    global registered_classes
+    global registered_classes, menu_func_import_ref
     registered_classes = []
 
     classes_to_register = [AddonPreferences, InstallDependenciesOperator]
@@ -90,10 +90,13 @@ def register():
     registered_classes.extend(classes_to_register)
 
     if deps_installed:
-        bpy.types.WorkSpace.ud = bpy.props.PointerProperty(type=pg.UDPropertyGroup)
+        menu_func_import_ref = op.menu_func_import
+        bpy.types.TOPBAR_MT_file_import.append(menu_func_import_ref)
 
 def unregister():
-    global registered_classes
+    global registered_classes, menu_func_import_ref
+
+    bpy.types.TOPBAR_MT_file_import.remove(menu_func_import_ref) 
 
     for cls in registered_classes[::-1]:
         unregister_class(cls)
