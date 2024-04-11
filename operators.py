@@ -32,6 +32,13 @@ class ImportE57(Operator, ImportHelper):
             vertices = scan_data['points_global']
             mesh.from_pydata(vertices, [], [])
 
+            # Assign colors to vertices if available
+            if 'points_colors' in scan_data:
+                color_attr = mesh.attributes.new(name='Col', type='FLOAT_COLOR', domain='POINT')
+                for i, vertex in enumerate(mesh.vertices):
+                    c = scan_data['points_colors'][i]
+                    color_attr.data[i].color = [c[0]/255, c[1]/255, c[2]/255, 1]
+
             # Update mesh geometry
             mesh.update()
 
