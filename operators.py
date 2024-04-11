@@ -29,7 +29,7 @@ class ImportE57(Operator, ImportHelper):
             context.view_layer.objects.active = mesh_obj
 
             # Add vertices to the mesh
-            vertices = scan_data['points_global']
+            vertices = scan_data['points_local']
             mesh.from_pydata(vertices, [], [])
 
             # Assign colors to vertices if available
@@ -41,6 +41,18 @@ class ImportE57(Operator, ImportHelper):
 
             # Update mesh geometry
             mesh.update()
+
+            # Create an empty at the camera location
+            empty = bpy.data.objects.new("Empty", None)
+            empty.location = scan_data['camera_location']
+            
+            # Set the rotation of the empty using the quaternion
+            empty.rotation_mode = 'QUATERNION'
+            empty.rotation_quaternion = scan_data['camera_rotation']
+
+            # Link the empty to the scene and set it as the parent of the mesh object
+            context.collection.objects.link(empty)
+            mesh_obj.parent = empty
 
         return {'FINISHED'}
 
