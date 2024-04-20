@@ -21,34 +21,34 @@ class ImportE57(Operator, ImportHelper):
         e57_reader = E57Reader(self.filepath)
         e57_reader.read_scans()
 
-        for scan_data in e57_reader.scans:
+        for scan in e57_reader.scans:
             # Create a new mesh object
             mesh = bpy.data.meshes.new(name="Scan Mesh")
-            mesh_obj = bpy.data.objects.new("Scan Object", mesh)
+            mesh_obj = bpy.data.objects.new(scan.scan_name, mesh)
             context.collection.objects.link(mesh_obj)
             context.view_layer.objects.active = mesh_obj
 
             # Add vertices to the mesh
-            vertices = scan_data['points_local']
+            vertices = scan.points_local
             mesh.from_pydata(vertices, [], [])
 
             # Assign colors to vertices if available
-            if 'points_colors' in scan_data:
+            if scan.points_colors is not None:
                 color_attr = mesh.attributes.new(name='Col', type='FLOAT_COLOR', domain='POINT')
                 for i, vertex in enumerate(mesh.vertices):
-                    c = scan_data['points_colors'][i]
+                    c = scan.points_colors[i]
                     color_attr.data[i].color = [c[0]/255, c[1]/255, c[2]/255, 1]
 
             # Update mesh geometry
             mesh.update()
 
             # Create an empty at the camera location
-            empty = bpy.data.objects.new("Empty", None)
-            empty.location = scan_data['camera_location']
+            empty = bpy.data.objects.new(scan.scan_name + "_Location", None)
+            empty.location = scan.camera_location
             
             # Set the rotation of the empty using the quaternion
             empty.rotation_mode = 'QUATERNION'
-            empty.rotation_quaternion = scan_data['camera_rotation']
+            empty.rotation_quaternion = scan.camera_rotation
 
             # Link the empty to the scene and set it as the parent of the mesh object
             context.collection.objects.link(empty)
