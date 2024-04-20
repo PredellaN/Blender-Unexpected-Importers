@@ -61,6 +61,7 @@ class ImportE57(Operator, ImportHelper):
             mesh_obj.data.materials.append(bpy.data.materials['Projected'])
             mesh_obj.material_slots[0].material = mesh_obj.material_slots[0].material.copy()
 
+            # Assign Projected material, copy it, and assign the environment image
             projected_material = mesh_obj.material_slots[0].material
             projected_material.name = f"Projected_{mesh_obj.name}"
             env_texture_node = next((node for node in projected_material.node_tree.nodes if node.type == 'TEX_ENVIRONMENT'), None)
@@ -68,6 +69,7 @@ class ImportE57(Operator, ImportHelper):
             image = bpy.data.images.load(image_path, check_existing=True)
             env_texture_node.image = image
 
+            # Add the Voxelize modifier to turn points into a visible mesh
             modifier = mesh_obj.modifiers.new(name="Voxelize Modifier", type='NODES')
             modifier.node_group = bpy.data.node_groups["Voxelize"]
 
