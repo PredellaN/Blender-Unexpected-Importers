@@ -1,9 +1,21 @@
+import os
 import bpy
 from bpy_extras.io_utils import ImportHelper
 from bpy.props import StringProperty, BoolProperty, EnumProperty
 from bpy.types import Operator
 
+from .constants import ASSETS_FILE
+
 from .importer_classes import E57Reader
+
+# Function to append an asset from a blend file
+def append_asset(action, asset_name):
+    filepath = f"{ASSETS_FILE}\\{action}\\{asset_name}"
+    bpy.ops.wm.append(
+        filepath=filepath,
+        filename=asset_name,
+        directory=f"{ASSETS_FILE}\\{action}"
+    )
 
 class ImportE57(Operator, ImportHelper):
     bl_idname = "import.e57"
@@ -18,6 +30,10 @@ class ImportE57(Operator, ImportHelper):
     ) # type: ignore
 
     def execute(self, context):
+        append_asset("NodeTree", "Voxelize")
+        append_asset("Material", "Projected")
+
+        current_folder = os.path.dirname(self.filepath)
         e57_reader = E57Reader(self.filepath)
         e57_reader.read_scans()
 
@@ -41,6 +57,19 @@ class ImportE57(Operator, ImportHelper):
 
             # Update mesh geometry
             mesh.update()
+
+            mesh_obj.data.materials.append(bpy.data.materials['Projected'])
+            mesh_obj.material_slots[0].material = mesh_obj.material_slots[0].material.copy()
+
+            projected_material = mesh_obj.material_slots[0].material
+            projected_material.name = f"Projected_{mesh_obj.name}"
+            env_texture_node = next((node for node in projected_material.node_tree.nodes if node.type == 'TEX_ENVIRONMENT'), None)
+            image_path = os.path.join(current_folder, f"{mesh_obj.name}.jpg")
+            image = bpy.data.images.load(image_path, check_existing=True)
+            env_texture_node.image = image
+
+            modifier = mesh_obj.modifiers.new(name="Voxelize Modifier", type='NODES')
+            modifier.node_group = bpy.data.node_groups["Voxelize"]
 
             # Create an empty at the camera location
             empty = bpy.data.objects.new(scan.scan_name + "_Location", None)
