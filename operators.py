@@ -57,13 +57,14 @@ class ImportE57(Operator, ImportHelper):
 
             # Update mesh geometry
             mesh.update()
-
+            
             mesh_obj.data.materials.append(bpy.data.materials['Projected'])
             mesh_obj.material_slots[0].material = mesh_obj.material_slots[0].material.copy()
 
             # Assign Projected material, copy it, and assign the environment image
             projected_material = mesh_obj.material_slots[0].material
             projected_material.name = f"Projected_{mesh_obj.name}"
+
             env_texture_node = next((node for node in projected_material.node_tree.nodes if node.type == 'TEX_ENVIRONMENT'), None)
             image_path = os.path.join(current_folder, f"{mesh_obj.name}.jpg")
             if os.path.exists(image_path):
@@ -73,6 +74,7 @@ class ImportE57(Operator, ImportHelper):
             # Add the Voxelize modifier to turn points into a visible mesh
             modifier = mesh_obj.modifiers.new(name="Voxelize Modifier", type='NODES')
             modifier.node_group = bpy.data.node_groups["Voxelize"]
+            mesh_obj.modifiers["Voxelize Modifier"]["Socket_6"] = projected_material
 
             # Create an empty at the camera location
             empty = bpy.data.objects.new(scan.scan_name + "_Location", None)

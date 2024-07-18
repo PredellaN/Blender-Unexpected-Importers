@@ -1,3 +1,5 @@
 dependencies
 .venv
 __pycache__
+test
+assets/assets.blend1
