@@ -20,11 +20,10 @@ bl_info = {
 }
 
 ### Initialization
-from .importers import e57, ifc
+from .importers import e57
 
 modules = [
-    e57.Import,
-    ifc.Import
+    e57.Import
 ]
 
 def register():
@@ -33,14 +32,12 @@ def register():
         bpy.utils.register_class(module)
     
     bpy.types.TOPBAR_MT_file_import.append(e57.menu_func_import)
-    # bpy.types.TOPBAR_MT_file_import.append(ifc.menu_func_import)
 
 def unregister():   
     for module in modules:
         bpy.utils.unregister_class(module)
 
     bpy.types.TOPBAR_MT_file_import.remove(e57.menu_func_import)
-    # bpy.types.TOPBAR_MT_file_import.append(ifc.menu_func_import)
 
 if __name__ == "__main__":
     register()

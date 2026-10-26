@@ -6,7 +6,7 @@ rm -rf ./wheels
 mkdir -p ./wheels
 
 # Specify the Python version and ABI
-PYTHON_VERSION=${PYTHON_VERSION:-311}
+PYTHON_VERSION=${PYTHON_VERSION:-313}
 ABI=cp${PYTHON_VERSION}
 IMPLEMENTATION=cp
 
@@ -14,7 +14,7 @@ IMPLEMENTATION=cp
 declare -A PLATFORMS=(
   [windows]=win_amd64
   [macos]=macosx_11_0_arm64
-  [linux]=manylinux2014_x86_64
+  [linux]=manylinux_2_28_x86_64
 )
 
 for PLATFORM in "${!PLATFORMS[@]}"; do
@@ -28,5 +28,8 @@ for PLATFORM in "${!PLATFORMS[@]}"; do
     --abi ${ABI} \
     --dest ./wheels
 done
+
+# Remove numpy since Blender already bundles numpy
+rm -f ./wheels/numpy*
 
 echo "All wheels have been downloaded to ./wheels/"
